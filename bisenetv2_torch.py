@@ -338,68 +338,27 @@ class BiSeNetV2(nn.Module):
 
 
 if __name__ == "__main__":
-    #  x = torch.randn(16, 3, 1024, 2048)
-    #  detail = DetailBranch()
-    #  feat = detail(x)
-    #  print('detail', feat.size())
-    #
-    #  x = torch.randn(16, 3, 1024, 2048)
-    #  stem = StemBlock()
-    #  feat = stem(x)
-    #  print('stem', feat.size())
-    #
-    #  x = torch.randn(16, 128, 16, 32)
-    #  ceb = CEBlock()
-    #  feat = ceb(x)
-    #  print(feat.size())
-    #
-    #  x = torch.randn(16, 32, 16, 32)
-    #  ge1 = GELayerS1(32, 32)
-    #  feat = ge1(x)
-    #  print(feat.size())
-    #
-    #  x = torch.randn(16, 16, 16, 32)
-    #  ge2 = GELayerS2(16, 32)
-    #  feat = ge2(x)
-    #  print(feat.size())
-    #
-    #  left = torch.randn(16, 128, 64, 128)
-    #  right = torch.randn(16, 128, 16, 32)
-    #  bga = BGALayer()
-    #  feat = bga(left, right)
-    #  print(feat.size())
-    #
-    #  x = torch.randn(16, 128, 64, 128)
-    #  head = SegmentHead(128, 128, 19)
-    #  logits = head(x)
-    #  print(logits.size())
-    #
-    #  x = torch.randn(16, 3, 1024, 2048)
-    #  segment = SegmentBranch()
-    #  feat = segment(x)[0]
-    #  print(feat.size())
-    #
     import time
 
     image = torch.randn(2, 3, 360, 640)
     model = BiSeNetV2(n_classes=2)
     model.eval()
     model.cuda()
+    total_params = sum(p.numel() for p in model.parameters())
+    print(f"Total Params: {total_params}")
+    # init model
     logits = model(image.cuda())[0]
-    print(logits.size())
-    image = torch.randn(1, 3, 360, 640)
-
-    for name, param in model.named_parameters():
-        if len(param.size()) == 1:
-            print(name)
 
     # warm up
+    image = torch.randn(1, 3, 360, 640)
     for i in range(10):
         model(image.cuda())
-    init = time.time()
+    
     iters = 200
+    init = time.time()        
     for i in range(iters):
         model(image.cuda())
     end = time.time() - init
+
     print(f"FPS {1/(end/iters)}")
-    print(f"Time {end/iters}")
+    print(f"Time per iteration {end/iters}")

@@ -346,86 +346,54 @@ class SegmentHead(tf.keras.layers.Layer):
         return feat
 
 
-class BiSeNetV2(tf.keras.Model):
-    def __init__(self, n_classes, output_shape, **kwargs):
-        super().__init__(**kwargs)
-        self.detail = DetailBranch()
-        self.segment = SegmentBranch()
-        self.bga = BGALayer()
+def get_bisenetv2(input_shape, n_classes):
+    output_shape = input_shape[:2]
+    detail = DetailBranch()
+    segment = SegmentBranch()
+    bga = BGALayer()
 
-        # TODO: what is the number of main head channels ?
-        self.head = SegmentHead(1024, n_classes, output_shape)
-        self.aux2 = SegmentHead(128, n_classes, output_shape)
-        self.aux3 = SegmentHead(128, n_classes, output_shape)
-        self.aux4 = SegmentHead(128, n_classes, output_shape)
-        self.aux5_4 = SegmentHead(128, n_classes, output_shape)
+    # TODO: what is the number of main head channels ?
+    head = SegmentHead(1024, n_classes, output_shape)
+    aux2 = SegmentHead(128, n_classes, output_shape)
+    aux3 = SegmentHead(128, n_classes, output_shape)
+    aux4 = SegmentHead(128, n_classes, output_shape)
+    aux5_4 = SegmentHead(128, n_classes, output_shape)
 
-    def call(self, x, training=None):
-        # size = x.size()[2:]
-        # dsize = tf.shape(x)[1:3]
-        feat_d = self.detail(x, training=training)
-        feat2, feat3, feat4, feat5_4, feat_s = self.segment(x, training=training)
-        feat_head = self.bga(feat_d, feat_s, training=training)
+    x = tf.keras.Input(shape=input_shape, name="images")
+    feat_d = detail(x)
+    feat2, feat3, feat4, feat5_4, feat_s = segment(x)
+    feat_head = bga(feat_d, feat_s)
 
-        logits = self.head(feat_head, training=training)
-        # return logits
-        # if inference:
-        #     return [logits]
+    logits = head(feat_head)
 
-        logits_aux2 = self.aux2(feat2, training=training)
-        logits_aux3 = self.aux3(feat3, training=training)
-        logits_aux4 = self.aux4(feat4, training=training)
-        logits_aux5_4 = self.aux5_4(feat5_4, training=training)
-        return logits, logits_aux2, logits_aux3, logits_aux4, logits_aux5_4
-
-
-class BuildModel(object):
-    def __init__(self, n_classes, output_shape, **kwargs):
-        super().__init__(**kwargs)
-        self.detail = DetailBranch()
-        self.segment = SegmentBranch()
-        self.bga = BGALayer()
-
-        # TODO: what is the number of main head channels ?
-        self.head = SegmentHead(1024, n_classes, output_shape)
-        self.aux2 = SegmentHead(128, n_classes, output_shape)
-        self.aux3 = SegmentHead(128, n_classes, output_shape)
-        self.aux4 = SegmentHead(128, n_classes, output_shape)
-        self.aux5_4 = SegmentHead(128, n_classes, output_shape)
-
-    def get_model(self, input_shape):
-        x = tf.keras.Input(shape=input_shape, name="images")
-        feat_d = self.detail(x)
-        feat2, feat3, feat4, feat5_4, feat_s = self.segment(x)
-        feat_head = self.bga(feat_d, feat_s)
-
-        logits = self.head(feat_head)
-
-        logits_aux2 = self.aux2(feat2)
-        logits_aux3 = self.aux3(feat3)
-        logits_aux4 = self.aux4(feat4)
-        logits_aux5_4 = self.aux5_4(feat5_4)
-        return tf.keras.Model(
-            inputs=x,
-            outputs=[logits, logits_aux2, logits_aux3, logits_aux4, logits_aux5_4],
-            name="BiSeNetV2",
-        )
+    logits_aux2 = aux2(feat2)
+    logits_aux3 = aux3(feat3)
+    logits_aux4 = aux4(feat4)
+    logits_aux5_4 = aux5_4(feat5_4)
+    return tf.keras.Model(
+        inputs=x,
+        outputs=[logits, logits_aux2, logits_aux3, logits_aux4, logits_aux5_4],
+        name="BiSeNetV2",
+    )
 
 
 if __name__ == "__main__":
-    import numpy as np
     import time
 
-    input_shape = (640, 360, 3)
-    model = BuildModel(2, input_shape[:2]).get_model(input_shape)
-    # model = BiSeNetV2(2, input_shape[1:2])
-    # model.build(input_shape=output_shape)
+    input_shape = (360, 640, 3)
+    model = get_bisenetv2(input_shape, n_classes=2)
     model.summary()
-    tf.keras.utils.plot_model(model, expand_nested=True, show_shapes=True)
 
-    image = np.random.random((1, *input_shape))
+    image = tf.random.normal((1, *input_shape))
+    # warm up
+    for i in range(10):
+        model(image)
+
+    iters = 200
     init = time.time()
-    for i in range(200):
+    for i in range(iters):
         model(image)
     end = time.time() - init
-    print(f"FPS {1/end/200}")
+
+    print(f"FPS {1/(end/iters)}")
+    print(f"Time {end/iters}")
