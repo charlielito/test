@@ -357,7 +357,7 @@ if __name__ == "__main__":
     iters = 200
     init = time.time()        
     for i in range(iters):
-        model(image.cuda())
+        model(image.cuda())[0].detach().cpu()
     end = time.time() - init
 
     print(f"FPS {1/(end/iters)}")
