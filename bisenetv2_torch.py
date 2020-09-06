@@ -308,8 +308,6 @@ class BiSeNetV2(nn.Module):
         self.aux4 = SegmentHead(64, 128, n_classes)
         self.aux5_4 = SegmentHead(128, 128, n_classes)
 
-        self.init_weights()
-
     def forward(self, x):
         size = x.size()[2:]
         feat_d = self.detail(x)
@@ -322,19 +320,6 @@ class BiSeNetV2(nn.Module):
         logits_aux4 = self.aux4(feat4, size)
         logits_aux5_4 = self.aux5_4(feat5_4, size)
         return logits, logits_aux2, logits_aux3, logits_aux4, logits_aux5_4
-
-    def init_weights(self):
-        for name, module in self.named_modules():
-            if isinstance(module, (nn.Conv2d, nn.Linear)):
-                nn.init.kaiming_normal_(module.weight, mode="fan_out")
-                if not module.bias is None:
-                    nn.init.constant_(module.bias, 0)
-            elif isinstance(module, nn.modules.batchnorm._BatchNorm):
-                if hasattr(module, "last_bn") and module.last_bn:
-                    nn.init.zeros_(module.weight)
-                else:
-                    nn.init.ones_(module.weight)
-                nn.init.zeros_(module.bias)
 
 
 if __name__ == "__main__":
