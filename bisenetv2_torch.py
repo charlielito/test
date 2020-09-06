@@ -352,7 +352,7 @@ if __name__ == "__main__":
     # warm up
     image = torch.randn(1, 3, 360, 640)
     for i in range(10):
-        model(image.cuda())
+        model(image.cuda())[0].detach().cpu()
     
     iters = 200
     init = time.time()        
