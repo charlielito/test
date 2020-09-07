@@ -383,7 +383,8 @@ if __name__ == "__main__":
     input_shape = (360, 640, 3)
     model = get_bisenetv2(input_shape, n_classes=2)
     model.summary()
-
+    model.compile("adam", "mse")
+    model = tf.function(model)
     image = tf.random.normal((1, *input_shape))
     # warm up
     for i in range(10):
