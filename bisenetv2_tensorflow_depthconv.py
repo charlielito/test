@@ -418,6 +418,7 @@ if __name__ == "__main__":
     # exit()
     # model.save("tfbisenet")
     model.compile("adam", "mse")
+    model = tf.function(model)
     # tf.keras.utils.plot_model(model)
 
     image = tf.random.normal((1, *input_shape))
