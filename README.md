@@ -4,6 +4,14 @@ Install depedencies
 bash build_opencv.sh
 bash build_tkdnn.sh
 ```
+
+Build tensorRT optimized model
+```
+cd $HOME/tkDNN/build
+export TKDNN_MODE=FP16
+./test_yolo4
+```
+
 Run inference
 ```
 cd $HOME/tkDNN/build
