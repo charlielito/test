@@ -17,6 +17,13 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
     libyaml-cpp-dev \
     bzip2 \
     xorg \
+    # Generic tools
+    build-essential \
+    git \
+    pkg-config \
+    unzip \
+    yasm \
+    checkinstall \
     && apt autoremove && apt clean -y \
     && rm -rf /var/lib/apt/lists/*
 
@@ -73,14 +80,6 @@ ENV OPENCV_VERSION=4.4.0  \
     OPENCV_CONTRIB_VERSION=4.4.0  \
     OPENCV_LOG_LEVEL=ERROR
 RUN apt update && apt install --no-install-recommends -y \
-    # ------------------------------
-    # Generic tools
-    build-essential \
-    git \
-    pkg-config \
-    unzip \
-    yasm \
-    checkinstall \
     # ------------------------------
     # Image I/O libs
     libjpeg-dev \
