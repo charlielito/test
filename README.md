@@ -18,9 +18,24 @@ cd $HOME/tkDNN/build
 ./demo yolo4_fp16.rt ../demo/yolo_test.mp4 y 80 1 0
 ```
 
-## For balena
+### Results Xavier Ubuntu
+```
+Time stats:
+Min: 45.3216 ms
+Max: 85.8358 ms
+Avg: 45.7216 ms 21.8715 FPS
+```
+
+## In balena
 Build the image and after it has created the optimized model, login in and run:
 ```
 cd /usr/src/app/tkDNN/build
 ./demo yolo4_fp16.rt ../demo/yolo_test.mp4 y 80 1 0
+```
+### Results Xavier Balena
+```
+Time stats:
+Min: 45.3216 ms
+Max: 85.8358 ms
+Avg: 45.7216 ms 21.8715 FPS
 ```
