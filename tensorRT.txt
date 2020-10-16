@@ -1,0 +1,11 @@
+https://storage.googleapis.com/autonomy-vision/packages/libnvinfer-bin_6.0.1-1%2Bcuda10.0_arm64.deb
+https://storage.googleapis.com/autonomy-vision/packages/libnvinfer-dev_6.0.1-1%2Bcuda10.0_arm64.deb
+https://storage.googleapis.com/autonomy-vision/packages/libnvinfer-doc_6.0.1-1%2Bcuda10.0_all.deb
+https://storage.googleapis.com/autonomy-vision/packages/libnvinfer-plugin6_6.0.1-1%2Bcuda10.0_arm64.deb
+https://storage.googleapis.com/autonomy-vision/packages/libnvinfer-plugin-dev_6.0.1-1%2Bcuda10.0_arm64.deb
+https://storage.googleapis.com/autonomy-vision/packages/libnvonnxparsers6_6.0.1-1%2Bcuda10.0_arm64.deb
+https://storage.googleapis.com/autonomy-vision/packages/libnvonnxparsers-dev_6.0.1-1%2Bcuda10.0_arm64.deb
+https://storage.googleapis.com/autonomy-vision/packages/libnvparsers6_6.0.1-1%2Bcuda10.0_arm64.deb
+https://storage.googleapis.com/autonomy-vision/packages/libnvparsers-dev_6.0.1-1%2Bcuda10.0_arm64.deb
+https://storage.googleapis.com/autonomy-vision/packages/libnvinfer-samples_6.0.1-1%2Bcuda10.0_all.deb
+https://storage.googleapis.com/autonomy-vision/packages/libnvinfer6_6.0.1-1%2Bcuda10.0_arm64.deb
