@@ -68,7 +68,10 @@ class StemBlock(tf.keras.layers.Layer):
         super().__init__()
         self.conv = ConvBNReLU(16, 3, stride=2)
         self.left = tf.keras.Sequential(
-            [ConvBNReLU(8, 1, stride=1, padding="valid"), ConvBNReLU(16, 3, stride=2),]
+            [
+                ConvBNReLU(8, 1, stride=1, padding="valid"),
+                ConvBNReLU(16, 3, stride=2),
+            ]
         )
         self.right = tf.keras.layers.MaxPool2D(pool_size=3, strides=2, padding="same")
         self.fuse = ConvBNReLU(16, 3, stride=1)
@@ -213,11 +216,18 @@ class GELayerS2(tf.keras.layers.Layer):
                 #     use_bias=False,
                 # ),
                 tf.keras.layers.DepthwiseConv2D(
-                    kernel_size=3, strides=2, padding="same", use_bias=False,
+                    kernel_size=3,
+                    strides=2,
+                    padding="same",
+                    use_bias=False,
                 ),
                 tf.keras.layers.BatchNormalization(),
                 tf.keras.layers.Conv2D(
-                    out_chan, kernel_size=1, strides=1, padding="valid", use_bias=False,
+                    out_chan,
+                    kernel_size=1,
+                    strides=1,
+                    padding="valid",
+                    use_bias=False,
                 ),
                 tf.keras.layers.BatchNormalization(),
             ]
@@ -274,7 +284,10 @@ class BGALayer(tf.keras.layers.Layer):
                 #     use_bias=False,
                 # ),
                 tf.keras.layers.DepthwiseConv2D(
-                    kernel_size=3, strides=1, padding="same", use_bias=False,
+                    kernel_size=3,
+                    strides=1,
+                    padding="same",
+                    use_bias=False,
                 ),
                 tf.keras.layers.BatchNormalization(),
                 tf.keras.layers.Conv2D(
@@ -312,7 +325,10 @@ class BGALayer(tf.keras.layers.Layer):
                 #     use_bias=False,
                 # ),
                 tf.keras.layers.DepthwiseConv2D(
-                    kernel_size=3, strides=1, padding="same", use_bias=False,
+                    kernel_size=3,
+                    strides=1,
+                    padding="same",
+                    use_bias=False,
                 ),
                 tf.keras.layers.BatchNormalization(),
                 tf.keras.layers.Conv2D(
@@ -411,24 +427,51 @@ if __name__ == "__main__":
     import numpy as np
     import time
 
-    input_shape = (640, 360, 3)
-    model = get_bisenetv2(input_shape, n_classes=2)
+    input_shape = (360, 640, 3)
+    keras_model = get_bisenetv2(input_shape, n_classes=2)
 
-    model.summary()
+    keras_model.summary()
     # exit()
-    # model.save("tfbisenet")
-    model.compile("adam", "mse")
-    model = tf.function(model)
+    keras_model.compile("adam", "mse")
+    model = tf.function(keras_model)
+    # model = keras_model
     # tf.keras.utils.plot_model(model)
 
     image = tf.random.normal((1, *input_shape))
     # warm up
     for i in range(10):
-        model(image)
+        model(image)[0].numpy()
     init = time.time()
     iters = 200
     for i in range(iters):
-        model(image)
+        image / 255
+        model(image)[0].numpy()
     end = time.time() - init
     print(f"FPS {1/(end/iters)}")
     print(f"Time {end/iters}")
+
+    test_saved_model = True
+    if test_saved_model:
+        keras_model.save("tfbisenet")
+        tf_model = tf.saved_model.load("tfbisenet")
+
+        image = np.random.normal(size=(1, *input_shape)).astype(np.float32)
+        tf_image = tf.constant(image)
+
+        for i in range(10):
+            tf.transpose(tf_image, (0, 3, 1, 2))
+            out = tf_model(image)[0]
+            tf.transpose(out, (0, 2, 3, 1))
+            out.numpy()
+        init = time.time()
+        iters = 200
+        for i in range(iters):
+            tf.transpose(tf_image, (0, 3, 1, 2))
+            out = tf_model(image)[0]
+            tf.transpose(out, (0, 2, 3, 1))
+            out.numpy()
+            image / 255
+        end = time.time() - init
+        print(f"FPS {1/(end/iters)}")
+        print(f"Time {end/iters}")
+        print(out.shape)
