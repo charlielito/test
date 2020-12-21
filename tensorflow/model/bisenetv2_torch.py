@@ -347,3 +347,27 @@ if __name__ == "__main__":
 
     print(f"FPS {1/(end/iters)}")
     print(f"Time per iteration {end/iters}")
+    
+    traced = torch.jit.trace(model, (image.cuda()))
+    #print(traced.code)
+    traced.save("bisenet.zip")
+
+    loaded = torch.jit.load("bisenet.zip")
+    loaded.cuda()
+
+    #print(loaded)
+    #print(loaded.code)
+
+    # warm up
+    image = torch.randn(1, 3, 360, 640)
+    for i in range(10):
+        loaded(image.cuda())[0].detach().cpu()
+
+    iters = 200
+    init = time.time()
+    for i in range(iters):
+        loaded(image.cuda())[0].detach().cpu()
+    end = time.time() - init
+
+    print(f"FPS {1/(end/iters)}")
+    print(f"Time per iteration {end/iters}")
